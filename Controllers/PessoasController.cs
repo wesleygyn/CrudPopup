@@ -54,9 +54,11 @@ namespace CrudPopup.Controllers
 			{
 				_context.Add(pessoa);
 				await _context.SaveChangesAsync();
-				return RedirectToAction(nameof(Index));
+                TempData["mensagemResultSucces"] = $"O cadastro de {pessoa.Nome} foi realizado com sucesso!";
+                return RedirectToAction(nameof(Index));
 			}
-			return View(pessoa);
+            TempData["mensagemResultError"] = $"Erro ao efetuar o cadastro de {pessoa.Nome}.";
+            return View(pessoa);
 		}
 
 		// GET: Pessoas/Edit/5
@@ -90,17 +92,20 @@ namespace CrudPopup.Controllers
 				try
 				{
 					_context.Update(pessoa);
-					await _context.SaveChangesAsync();
+                    TempData["mensagemResultSucces"] = $"O cadastro de {pessoa.Nome} foi editado com sucesso!";
+                    await _context.SaveChangesAsync();
 				}
 				catch (DbUpdateConcurrencyException)
 				{
 					if (!PessoaExists(pessoa.Id))
 					{
-						return NotFound();
+                        TempData["mensagemResultError"] = $"Não existe cadastro com o Id {pessoa.Id}.";
+                        return NotFound();
 					}
 					else
 					{
-						throw;
+                        TempData["mensagemResultError"] = $"Não foi possível editar o cadastro de {pessoa.Nome}.";
+                        throw;
 					}
 				}
 				return RedirectToAction(nameof(Index));
@@ -133,15 +138,16 @@ namespace CrudPopup.Controllers
 		{
 			if (_context.pessoas == null)
 			{
-				return Problem("Entity set 'ApplicationDbContext.pessoas'  is null.");
+                TempData["mensagemResultError"] = $"Cadastro inexistente.";
+                return Problem("Entity set 'ApplicationDbContext.pessoas'  is null.");
 			}
 			var pessoa = await _context.pessoas.FindAsync(id);
 			if (pessoa != null)
 			{
 				_context.pessoas.Remove(pessoa);
 			}
-
-			await _context.SaveChangesAsync();
+            TempData["mensagemResultSucces"] = $"O cadastro de {pessoa.Nome} foi removido com sucesso!";
+            await _context.SaveChangesAsync();
 			return RedirectToAction(nameof(Index));
 		}
 
